@@ -1,8 +1,10 @@
+//  Author: Pamood Jayaratne
+//  IIT ID : 20220163
+//  Description: 5COSC019C Object Oriented Programming – Coursework (2023/24)
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 
 import java.awt.*;
-import java.util.HashMap;
 import java.util.Map;
 
 public class ShoppingCartGUI extends JFrame {
@@ -41,7 +43,7 @@ public class ShoppingCartGUI extends JFrame {
         finalDetails.add(firstPDiscountLabel);
         finalDetails.add(threeItemsDiscountLabel);
         finalDetails.add(finalTotalLabel);
-        finalDetails.add(checkOutButton);
+        
     }
 
     private void layoutComponents() {
@@ -52,12 +54,11 @@ public class ShoppingCartGUI extends JFrame {
         constraints.gridwidth = 0;
         constraints.gridy = 0;
         constraints.gridx = 0;
-
         JScrollPane scrollPane = new JScrollPane(cartTable);
         add(scrollPane, constraints);
 
         constraints.gridy++;
-        constraints.anchor = GridBagConstraints.NORTHEAST; // Align to the top right corner
+        constraints.anchor = GridBagConstraints.NORTHEAST; 
 
         finalDetails.setLayout(new BoxLayout(finalDetails, BoxLayout.PAGE_AXIS));
         finalDetails.add(totalLabel);
@@ -68,39 +69,35 @@ public class ShoppingCartGUI extends JFrame {
         finalDetails.add(Box.createRigidArea(new Dimension(0, 10)));
         finalDetails.add(finalTotalLabel);
         finalDetails.add(Box.createRigidArea(new Dimension(0, 10)));
-
-        // Align the checkout button to the center and make it span the entire width
-        checkOutButton.setMaximumSize(new Dimension(Integer.MAX_VALUE, checkOutButton.getPreferredSize().height));
-        checkOutButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-        finalDetails.add(checkOutButton);
-        // Align the finalDetails panel to the right
-        finalDetails.setAlignmentX(Component.RIGHT_ALIGNMENT);
+        finalDetails.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         add(finalDetails, constraints);
+       
+        constraints.gridy++;
+        constraints.anchor = GridBagConstraints.CENTER;
+        add(checkOutButton, constraints);
+        checkOutButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+     
 
         checkOutButton.addActionListener(e -> checkout());
+        checkOutButton.setBackground(Color.RED);
+        checkOutButton.setForeground(Color.WHITE);
 
         updateCartTable();
         updateFinalDetails();
     }
 
     public static void addToCart(Product product, int quantity) {
-        // Check if the product is already in the cart
         if (shoppingCart.getProducts().containsKey(product)) {
-            // If the product is already in the cart, increase its quantity
             int currentQuantity = shoppingCart.getProducts().get(product);
             shoppingCart.getProducts().put(product, currentQuantity + quantity);
         } else {
-            // If the product is not in the cart, add it to the cart
             shoppingCart.getProducts().put(product, quantity);
         }
     }
 
     private void updateCartTable() {
-        // Get the products from the shopping cart
         Map<Product, Integer> products = shoppingCart.getProducts();
-
-        // Prepare the data for the table
         Object[][] data = new Object[products.size()][3];
         int row = 0;
         for (Map.Entry<Product, Integer> entry : products.entrySet()) {
@@ -109,51 +106,46 @@ public class ShoppingCartGUI extends JFrame {
 
             data[row][0] = product.getProductName();
             data[row][1] = quantity;
-            data[row][2] = product.getPrice() * quantity; // Calculate the total price
+            data[row][2] = product.getPrice() * quantity; 
 
             row++;
         }
 
-        // Set updated data and column names
+    
         String[] columnNames = {"Product", "Quantity", "Total Price"};
-        cartTable.setModel(new DefaultTableModel(data, columnNames));
-    }
+        DefaultTableModel model = new DefaultTableModel(data, columnNames) {
+        @Override
+        public boolean isCellEditable(int row, int column)//set table cells as non editable
+         {
 
+        return false;
+    }
+};
+cartTable.setModel(model);
+    }
+    // Update the final details labels
     private void updateFinalDetails() {
         double totalCost = shoppingCart.calculateTotalCost();
         totalLabel.setText("Total: " + String.format("%.2f", totalCost) + " €");
-
-        double threeItemsDiscount = 0;
-        Map<String, Integer> categoryCounts = new HashMap<>();
-        for (Map.Entry<Product, Integer> entry : shoppingCart.getProducts().entrySet()) {
-            String productString = entry.getKey().toString();
-            String category = productString.substring(0, productString.indexOf("{productID='"));
-            categoryCounts.put(category, categoryCounts.getOrDefault(category, 0) + entry.getValue());
-            if (categoryCounts.getOrDefault(category, 0) >= 3) {
-                threeItemsDiscount = totalCost * 0.2; // 20% discount
-                break;
-            }
-        }
-
-        if (threeItemsDiscount > 0) {
-            threeItemsDiscountLabel.setText("Three Items Discount: " + String.format("%.2f", threeItemsDiscount) + " €");
-        } else {
-            threeItemsDiscountLabel.setText("Three Items Discount: 0.00 €");
-        }
-
-        finalTotalLabel.setText("Final Total: " + String.format("%.2f", totalCost - threeItemsDiscount) + " €");
         
-    
+        double firstPurchaseDiscount = shoppingCart.calculateFirstPurchaseDiscount();
+        firstPDiscountLabel.setText("First Purchase Discount: " + String.format("%.2f", firstPurchaseDiscount) + " €");
+
+         double threeItemsDiscount = shoppingCart.calculateThreeItemsDiscount();
+         threeItemsDiscountLabel.setText("Three Items Discount: " + String.format("%.2f", threeItemsDiscount) + " €");
+
+        double finalTotal = totalCost - (firstPurchaseDiscount+threeItemsDiscount);
+        finalTotalLabel.setText("Final Total: " + String.format("%.2f", finalTotal) + " €");
     }
 
+    // Checkout the cart
     private void checkout() {
-        // Perform the checkout logic here
-        // For example, you can clear the cart, update inventory, etc.
-
         shoppingCart = new ShoppingCart();
+        User.setFirstPurchase(false);
+
+        User.saveUsersToFile();
         updateCartTable();
         updateFinalDetails();
-
         JOptionPane.showMessageDialog(null, "Checkout completed.", "Success", JOptionPane.INFORMATION_MESSAGE);
     }
 

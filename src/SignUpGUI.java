@@ -1,25 +1,21 @@
-
+//  Author: Pamood Jayaratne
+//  IIT ID : 20220163
+//  Description: 5COSC019C Object Oriented Programming – Coursework (2023/24)
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import java.io.FileOutputStream;
-
-import java.io.IOException;
-import java.io.ObjectOutputStream;
-
 public class SignUpGUI extends JFrame {
-    private JTextField firstNameField;
-    private JTextField lastNameField;
-    private JTextField emailField;
-    private JTextField userIDField;
+    // Declare all the components and variables
+    private JTextField firstNameField,lastNameField,emailField,userIDField;
     private JPasswordField passwordField;
     private JPasswordField confirmPasswordField;
     private JButton signInButton;
     private JButton backButton;
-
+  
     public SignUpGUI() {
+        // Set up the frame
         setTitle("Signup GUI");
         setLayout(new GridBagLayout());
         initializeLoginComponents();
@@ -32,6 +28,7 @@ public class SignUpGUI extends JFrame {
     }
 
     private void initializeLoginComponents() {
+        // Initialize all the components
         firstNameField = new JTextField(20);
         lastNameField = new JTextField(20);
         emailField = new JTextField(20);
@@ -39,10 +36,15 @@ public class SignUpGUI extends JFrame {
         passwordField = new JPasswordField(20);
         confirmPasswordField = new JPasswordField(20);
         signInButton = new JButton("Sign In");
-        backButton = new JButton("Back");
+        signInButton.setBackground(Color.ORANGE);
+        signInButton.setForeground(Color.BLACK);
+        backButton = new JButton("Back"); 
+        backButton.setBackground(Color.GRAY);
+        backButton.setForeground(Color.WHITE);
     }
 
     private void layoutComponents() {
+        // Add all the components to the frame
         GridBagConstraints constraints = new GridBagConstraints();
         constraints.fill = GridBagConstraints.HORIZONTAL;
         constraints.insets = new Insets(10, 10, 10, 10);
@@ -94,18 +96,19 @@ public class SignUpGUI extends JFrame {
         constraints.gridy = 6;
         add(backButton, constraints);
         backButton.addActionListener(new ActionListener() {
+            
             @Override
             public void actionPerformed(ActionEvent e) {
-                SignUpGUI.this.setVisible(false); // make the sign up page not visible
-                new LoginGUI().setVisible(true); // open the login page
+                SignUpGUI.this.setVisible(false);
+                new LoginGUI().setVisible(true); 
             }
         });
-
 
         constraints.gridx = 1;
         add(signInButton, constraints);
 
         signInButton.addActionListener(new ActionListener() {
+            // Add an action listener to the login button
             @Override
             public void actionPerformed(ActionEvent e) {
                 String firstName = firstNameField.getText();
@@ -113,26 +116,36 @@ public class SignUpGUI extends JFrame {
                 String email = emailField.getText();
                 String userID = userIDField.getText();
                 String password = new String(passwordField.getPassword());
-                String confirmPassword = new String(confirmPasswordField.getPassword());
+               String confirmPassword = new String(confirmPasswordField.getPassword());
+                 // Validate user input
+        if (firstName.isEmpty() || lastName.isEmpty() || email.isEmpty() || userID.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
+            JOptionPane.showMessageDialog(null, "Please fill in all fields.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
 
-                if (firstName.isEmpty() || lastName.isEmpty() || email.isEmpty() || userID.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
-                    JOptionPane.showMessageDialog(null, "Please fill in all fields.", "Error", JOptionPane.ERROR_MESSAGE);
-                } else if (!password.equals(confirmPassword)) {
-                    JOptionPane.showMessageDialog(null, "Passwords do not match.", "Error", JOptionPane.ERROR_MESSAGE);
-                } else {
-                    User newUser = new User(userID, password, firstName, lastName, email);
+        String emailRegex = "^[A-Za-z0-9+_.-]+@(.+)$";
+        if (!email.matches(emailRegex)) {
+            JOptionPane.showMessageDialog(null, "Invalid email format.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
 
-                    try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("users.txt", true))) {
-                        oos.writeObject(newUser);
-                        oos.writeObject(null); // Add null as a marker for the end of the object stream
-                        JOptionPane.showMessageDialog(null, "Registration successful.", "Success", JOptionPane.INFORMATION_MESSAGE);
-                        SignUpGUI.this.setVisible(false);
-                        new LoginGUI().setVisible(true);
-                    } catch (IOException ex) {
-                        ex.printStackTrace();
-                    }
-}
-            }
-        });
-    }
-}
+        // You can add more specific validation checks as needed
+
+        if (!password.equals(confirmPassword)) {
+            JOptionPane.showMessageDialog(null, "Passwords do not match.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+
+        User newUser = new User(userID, password);
+        User.getUsers().add(newUser);
+        User.saveUsersToFile();
+        JOptionPane.showMessageDialog(null, "Registration successful.", "Success", JOptionPane.INFORMATION_MESSAGE);
+        SignUpGUI.this.setVisible(false);
+        LoginGUI loginGUI = new LoginGUI();
+        loginGUI.setVisible(true);
+
+                }
+            });    
+        }  
+     }

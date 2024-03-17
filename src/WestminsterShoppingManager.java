@@ -1,3 +1,6 @@
+//  Author: Pamood Jayaratne
+//  IIT ID : 20220163
+//  Description: 5COSC019C Object Oriented Programming – Coursework (2023/24)
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -8,12 +11,10 @@ import java.util.Scanner;
 
 public class WestminsterShoppingManager implements ShoppingManager {
     private static ArrayList<Product> products;
-    private static ArrayList<User> users;
     private static final int MAX_PRODUCTS = 50;
 
     public WestminsterShoppingManager() {
         this.products = new ArrayList<>();
-        this.users = new ArrayList<>();
         loadProductsFromFile();
     }
 
@@ -24,18 +25,28 @@ public class WestminsterShoppingManager implements ShoppingManager {
 
     public void showMenu() {
         Scanner scanner = new Scanner(System.in);
-        int option;
+        int option = -1; // Initialize option to a default value
 
         do {
-            System.out.println("\nWestminster Shopping Manager Menu:");
-            System.out.println("----------------------------------");
+            System.out.println("---------------------------------------");
+            System.out.println("-- Westminster Shopping Manager Menu --");
+            System.out.println("---------------------------------------");
             System.out.println("1. Add a new product");
             System.out.println("2. Remove a product");
             System.out.println("3. Print product list");
-            System.out.println("4. Open GUI");
+            System.out.println("4. Load products from file");
+            System.out.println("5. Save products to file");
+            System.out.println("6. Open GUI");
             System.out.println("0. Exit");
             System.out.print("Enter your choice: ");
-            option = scanner.nextInt();
+
+            try {
+                option = scanner.nextInt();
+            } catch (InputMismatchException e) {
+                System.out.println("Invalid input. Please enter an integer.");
+                scanner.next(); // discard the invalid input
+                continue; // skip the rest of the loop and start over
+            }
 
             switch (option) {
                 case 1:
@@ -48,10 +59,17 @@ public class WestminsterShoppingManager implements ShoppingManager {
                     printProductList();
                     break;
                 case 4:
+                    loadProductsFromFile();
+                    break;
+                case 5:
+                    saveProductsToFile();
+                    break;
+                case 6:
                     openGUI();
                     break;
                 case 0:
                     System.out.println("Exiting.");
+                    System.exit(0);
                     break;
                 default:
                     System.out.println("Invalid option.");
@@ -156,9 +174,7 @@ public class WestminsterShoppingManager implements ShoppingManager {
 
     try {
         System.out.print("Enter the product ID of the product to remove: ");
-        productId = scanner.next();  // Use next() instead of nextLine() to avoid reading the newline character
-
-        // Assuming you have a method removeProduct that throws an exception if the product does not exist
+        productId = scanner.next(); 
         removeProduct(productId);
     } catch (NoSuchElementException e) {
         System.out.println("Product with ID does not exist.");
@@ -186,21 +202,21 @@ private void addElectronicsProduct() {
         System.out.print("Available items: ");
         while (!scanner.hasNextInt()) {
             System.out.println("Invalid input. Please enter a valid integer for available items.");
-            scanner.next(); // consume invalid input
+            scanner.next(); 
         }
         availableItems = scanner.nextInt();
 
         System.out.print("Price: ");
         while (!scanner.hasNextDouble()) {
             System.out.println("Invalid input. Please enter a valid double for price.");
-            scanner.next(); // consume invalid input
+            scanner.next(); 
         }
         price = scanner.nextDouble();
 
         System.out.print("Warranty period (in months): ");
         while (!scanner.hasNextInt()) {
             System.out.println("Invalid input. Please enter a valid integer for warranty period.");
-            scanner.next(); // consume invalid input
+            scanner.next(); 
         }
         warrantyPeriod = scanner.nextInt();
 
@@ -233,14 +249,14 @@ private void addClothingProduct() {
         System.out.print("Available items: ");
         while (!scanner.hasNextInt()) {
             System.out.println("Invalid input. Please enter a valid integer for available items.");
-            scanner.next(); // consume invalid input
+            scanner.next(); 
         }
         availableItems = scanner.nextInt();
 
         System.out.print("Price: ");
         while (!scanner.hasNextDouble()) {
             System.out.println("Invalid input. Please enter a valid double for price.");
-            scanner.next(); // consume invalid input
+            scanner.next(); 
         }
         price = scanner.nextDouble();
 
@@ -262,7 +278,7 @@ public void printProductList() {
 
             for (Product product : products) {
                 System.out.println(product);
-                System.out.println(); // Separate each product's information
+                System.out.println(); 
             }
         } catch (RuntimeException e) {
             System.out.println("An error occurred while printing the product list: " + e.getMessage());
@@ -271,7 +287,7 @@ public void printProductList() {
 }
 
 public void saveProductsToFile() {
-    try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("products.dat"))) {
+    try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("products.txt"))) {
         oos.writeObject(products);
         System.out.println("Products saved successfully to the file.");
     } catch (IOException e) {
@@ -280,7 +296,7 @@ public void saveProductsToFile() {
 }
 
 public void loadProductsFromFile() {
-    try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream("products.dat"))) {
+    try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream("products.txt"))) {
         Object loadedObject = ois.readObject();
 
         if (loadedObject instanceof List<?>) {
@@ -305,8 +321,16 @@ public void loadProductsFromFile() {
     }
 }
 
-
-   
+public static Product getProduct(String productId) {
+    Product product = null;
+    for (Product p : products) {
+        if (p.getProductID().equals(productId)) {
+            product = p;
+            break;
+        }
+    }
+    return product;
+}
 
 
     

@@ -1,3 +1,6 @@
+//  Author: Pamood Jayaratne
+//  IIT ID : 20220163
+//  Description: 5COSC019C Object Oriented Programming – Coursework (2023/24)
 public class Clothing extends Product {
     private String size;
     private String color;
@@ -12,16 +15,8 @@ public class Clothing extends Product {
         return size;
     }
 
-    public void setSize(String size) {
-        this.size = size;
-    }
-
     public String getColor() {
         return color;
-    }
-
-    public void setColor(String color) {
-        this.color = color;
     }
 
     @Override

@@ -1,3 +1,6 @@
+//  Author: Pamood Jayaratne
+//  IIT ID : 20220163
+//  Description: 5COSC019C Object Oriented Programming – Coursework (2023/24)
 public class Electronics extends Product{
     private String brand;
     private int warrantyPeriod;
@@ -12,17 +15,11 @@ public class Electronics extends Product{
         return brand;
     }
 
-    public void setBrand(String brand) {
-        this.brand = brand;
-    }
 
     public int getWarrantyPeriod() {
         return warrantyPeriod;
     }
 
-    public void setWarrantyPeriod(int warrantyPeriod) {
-        this.warrantyPeriod = warrantyPeriod;
-    }
 
     @Override
     public String getProductDetails() {

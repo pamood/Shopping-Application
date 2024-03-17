@@ -1,3 +1,6 @@
+//  Author: Pamood Jayaratne
+//  IIT ID : 20220163
+//  Description: 5COSC019C Object Oriented Programming – Coursework (2023/24)
 import java.io.Serializable;
 
 public abstract class Product implements Serializable {
@@ -17,16 +20,8 @@ public abstract class Product implements Serializable {
         return productID;
     }
 
-    public void setProductID(String productID) {
-        this.productID = productID;
-    }
-
     public String getProductName() {
         return productName;
-    }
-
-    public void setProductName(String productName) {
-        this.productName = productName;
     }
 
     public int getAvailableQuantity() {
@@ -40,12 +35,6 @@ public abstract class Product implements Serializable {
     public double getPrice() {
         return price;
     }
-
-    public void setPrice(double price) {
-        this.price = price;
-    }
-
-    
 
     public abstract String getProductDetails();
 

@@ -1,22 +1,38 @@
+//  Author: Pamood Jayaratne
+//  IIT ID : 20220163
+//  Description: 5COSC019C Object Oriented Programming – Coursework (2023/24)
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class User implements Serializable {
     private static final long serialVersionUID = 1L;
-
     private String userID;
     private String password;
     private String firstName;
     private String lastName;
     private String email;
+    private static boolean firstPurchase;
+    private static List<User> users = new ArrayList<>();
+    
+    public static List<User> getUsers() {
+        return users;
+    }
 
-    public User(String userID, String password, String firstName, String lastName, String email) {
+    public static boolean isFirstPurchase() {
+        return firstPurchase;
+    }
+
+    public static void setFirstPurchase(boolean firstPurchase) {
+        User.firstPurchase = firstPurchase;
+    }
+
+
+    public User(String userID, String password) {
         setUserID(userID);
         setPassword(password);
-        setFirstName(firstName);
-        setLastName(lastName);
-        setEmail(email);
+        firstPurchase = true;
+        
     }
 
     public String getUserID() {
@@ -80,39 +96,61 @@ public class User implements Serializable {
         this.email = email;
     }
 
-    private static List<User> loadUsersFromFile() {
-        List<User> users = new ArrayList<>();
-        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream("users.txt"))) {
-            while (true) {
-                try {
-                    User user = (User) ois.readObject();
-                    if (user != null) {
-                        users.add(user);
-                    } else {
-                        break; // End of object stream
-                    }
-                } catch (ClassNotFoundException e) {
-                    e.printStackTrace();
+    static void saveUsersToFile() {
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("users.txt"))) {
+            oos.writeObject(users);
+            System.out.println("Users saved successfully to the file.");
+        } catch (IOException e) {
+            System.out.println("An error occurred while saving the users to the file: " + e.getMessage());
+        }
+    }
+
+static void loadUsersFromFile() {
+    try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream("users.txt"))) {
+        Object loadedObject = ois.readObject();
+
+        if (loadedObject instanceof List<?>) {
+            List<?> loadedProducts = (List<?>) loadedObject;
+// Clear the existing products list before adding loaded products
+            users.clear();
+            // Add each product from the loaded list to the products list
+            for (Object use : loadedProducts) {
+                if (use instanceof User) {
+                    users.add((User) use);
                 }
             }
-        } catch (FileNotFoundException e) {
-            System.err.println("File not found: " + e.getMessage());
-        } catch (IOException e) {
-            System.err.println("Error reading file: " + e.getMessage());
+
+            System.out.println("Users loaded successfully from the file.");
         }
-        return users;
+    } catch (IOException e) {
+        System.out.println("An error occurred while loading the User from the file: " + e.getMessage());
+    } catch (ClassNotFoundException e) {
+        System.out.println("The class for the user stored in the file could not be found: " + e.getMessage());
     }
-
+}
+    
     public static boolean authenticateUser(String userID, String password) {
-        List<User> users = loadUsersFromFile();
-
+        // Load the list of users from a file
+        loadUsersFromFile();
+        // Check if the list is null
+        if (users == null) {
+            return false;
+        }
+        // Iterate over each user in the list
         for (User user : users) {
-            if (user.getUserID().equals(userID) && user.getPassword().equals(password)) {
-             
-                return true; // Authentication successful
+            // Check if the user is null
+            if (user == null) {
+                continue;
+            }
+            // Check if the user ID and password match
+            if (userID.equals(user.getUserID()) && password.equals(user.getPassword())) {
+
+                return true;
             }
         }
-        return false; // Authentication failed
+
+
+        return false;
     }
-    
+  
 }
